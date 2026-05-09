@@ -10,8 +10,14 @@ class ProdukController extends Controller
 {
     public function index()
     {
-        $produks = Produk::all();
+        $produks = $this->getAllProduk();
+    
         return view('admin.produk.index', compact('produks'));
+    }
+    
+    private function getAllProduk()
+    {
+        return Produk::all();
     }
 
    public function store(Request $request)
