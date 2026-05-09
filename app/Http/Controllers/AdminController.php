@@ -69,23 +69,40 @@ class AdminController extends Controller
         return view('admin.kelola-admin.edit', compact('admin'));
     }
 
-    public function update(Request $request, $id)
+        public function update(Request $request, $id)
     {
         $admin = User::findOrFail($id);
-
-        $request->validate([
+    
+        $validated = $this->validateAdminUpdate($request, $admin->id);
+    
+        $this->updateAdmin($admin, $validated);
+    
+        return redirect()
+            ->route('admin.kelola-admin.index')
+            ->with('sukses', 'Admin berhasil diperbarui.');
+    }
+    
+    private function validateAdminUpdate(Request $request, $adminId)
+    {
+        return $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $admin->id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $adminId,
             'password' => 'nullable|string|min:6|confirmed',
         ]);
-
-        $admin->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password ? Hash::make($request->password) : $admin->password,
-        ]);
-
-        return redirect()->route('admin.kelola-admin.index')->with('sukses', 'Admin berhasil diperbarui.');
+    }
+    
+    private function updateAdmin(User $admin, array $data)
+    {
+        $updateData = [
+            'name' => $data['name'],
+            'email' => $data['email'],
+        ];
+    
+        if (!empty($data['password'])) {
+            $updateData['password'] = Hash::make($data['password']);
+        }
+    
+        return $admin->update($updateData);
     }
 
     public function destroy($id)
