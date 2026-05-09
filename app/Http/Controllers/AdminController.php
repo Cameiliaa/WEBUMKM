@@ -9,11 +9,18 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
-    public function index()
+       public function index()
     {
-        $admins = User::where('role', 'admin')->get();
+        $admins = $this->getAdmins();
+    
         return view('admin.kelola-admin.index', compact('admins'));
     }
+    
+    private function getAdmins()
+    {
+        return User::where('role', self::ROLE_ADMIN)->get();
+    }    
+    
     public function dashboard()
     {
         return view('admin.dashboard');
