@@ -28,8 +28,13 @@ class ProdukController extends Controller
         $data['gambar'] = $this->uploadImage($request->file('gambar'));
     }
 
-    Produk::create($data);
-
+    $this->createProduk($data);
+    
+    private function createProduk(array $data)
+    {
+        return Produk::create($data);
+    }
+    
     return back()->with('sukses', 'Produk berhasil ditambahkan');
 }
 
