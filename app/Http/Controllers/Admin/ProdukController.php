@@ -23,12 +23,14 @@ class ProdukController extends Controller
         ]);
 
         if ($request->hasFile('gambar')) {
-            $image = $request->file('gambar');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('assets/img'), $imageName);
+           private function uploadImage($image)
+{
+    $imageName = time() . '.' . $image->getClientOriginalExtension();
 
-            $data['gambar'] = 'assets/img/' . $imageName;
-        }
+    $image->move(public_path('assets/img'), $imageName);
+
+    return 'assets/img/' . $imageName;
+}
 
         Produk::create($data);
         return back()->with('sukses', 'Produk berhasil ditambahkan');
