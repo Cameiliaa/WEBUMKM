@@ -22,25 +22,25 @@ class ProdukController extends Controller
 
    public function store(Request $request)
 {
-    $data = $request->validate([
-        'nama_produk' => 'required|string|max:255',
-        'harga' => 'required|numeric',
-        'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
-    ]);
+    $data = $this->validateProdukStore($request);
 
     if ($request->hasFile('gambar')) {
-        $data['gambar'] = $this->uploadImage(
-            $request->file('gambar')
-        );
+        $data['gambar'] = $this->uploadImage($request->file('gambar'));
     }
 
     Produk::create($data);
 
-    return back()->with(
-        'sukses',
-        'Produk berhasil ditambahkan'
-    );
+    return back()->with('sukses', 'Produk berhasil ditambahkan');
 }
+
+    private function validateProdukStore(Request $request)
+    {
+        return $request->validate([
+            'nama_produk' => 'required|string|max:255',
+            'harga' => 'required|numeric',
+            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+    }
     
         private function uploadImage($image)
     {
