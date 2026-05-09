@@ -58,27 +58,34 @@ class ProdukController extends Controller
     return self::IMAGE_PATH . '/' . $imageName;
         
     }
+    
     public function update(Request $request, Produk $produk)
-    {
-        $data = $request->validate([
-            'nama_produk' => 'required|string|max:255',
-            'harga' => 'required|numeric',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
+{
+    $data = $this->validateProdukUpdate($request);
 
-        if ($request->hasFile('gambar')) {
-            $image = $request->file('gambar');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('assets/img'), $imageName);
+    if ($request->hasFile('gambar')) {
+        $image = $request->file('gambar');
+        $imageName = time() . '.' . $image->getClientOriginalExtension();
+        $image->move(public_path(self::IMAGE_PATH), $imageName);
 
-            $data['gambar'] = 'assets/img/' . $imageName;
-        } else {
-            $data['gambar'] = $produk->gambar;
-        }
+        $data['gambar'] = self::IMAGE_PATH . '/' . $imageName;
+    } else {
+        $data['gambar'] = $produk->gambar;
+    }
 
-        $produk->update($data);
+    $produk->update($data);
+
         return back()->with('sukses', 'Produk berhasil diperbarui');
     }
+    
+    private function validateProdukUpdate(Request $request)
+    {
+    return $request->validate([
+        'nama_produk' => 'required|string|max:255',
+        'harga' => 'required|numeric',
+        'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+}
 
     public function destroy(Produk $produk)
     {
