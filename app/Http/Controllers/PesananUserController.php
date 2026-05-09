@@ -41,16 +41,28 @@ class PesananUserController extends Controller
             return back()->withErrors(['produk_id' => 'Produk tidak valid atau tidak ditemukan.'])->withInput();
         }
 
-        // Upload bukti pembayaran
         $buktiPath = null;
-        if ($request->hasFile('bukti_pembayaran')) {
-            $filename = time() . '_' . $request->file('bukti_pembayaran')->getClientOriginalName();
-            $request->file('bukti_pembayaran')->move(public_path('assets/img/'), $filename);
-            $buktiPath = 'assets/img/' . $filename;
-        }
 
+if ($request->hasFile('bukti_pembayaran')) {
+    $buktiPath = $this->uploadBuktiPembayaran(
+        $request->file('bukti_pembayaran')
+    );
+}
+private function uploadBuktiPembayaran($file)
+{
+    $filename = time() . '_' . $file->getClientOriginalName();
+
+    $file->move(public_path('assets/img/'), $filename);
+
+    return 'assets/img/' . $filename;
+}
+
+private function generateKodePesanan()
+{
+    return 'PMN-' . strtoupper(Str::random(6));
+}
         Pesanan::create([
-            'code_pemesanan' => 'PMN-' . strtoupper(Str::random(6)),
+            'code_pemesanan' => $this->generateKodePesanan(),
             'nama' => $request->nama,
             'tanggal' => $request->tanggal,
             'produk' => implode(', ', $produk_list),
