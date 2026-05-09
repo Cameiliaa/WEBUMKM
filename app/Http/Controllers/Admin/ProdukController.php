@@ -14,28 +14,36 @@ class ProdukController extends Controller
         return view('admin.produk.index', compact('produks'));
     }
 
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'nama_produk' => 'required|string|max:255',
-            'harga' => 'required|numeric',
-            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
-
-        if ($request->hasFile('gambar')) {
-           private function uploadImage($image)
+   public function store(Request $request)
 {
-    $imageName = time() . '.' . $image->getClientOriginalExtension();
+    $data = $request->validate([
+        'nama_produk' => 'required|string|max:255',
+        'harga' => 'required|numeric',
+        'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+    ]);
 
-    $image->move(public_path('assets/img'), $imageName);
-
-    return 'assets/img/' . $imageName;
-}
-
-        Produk::create($data);
-        return back()->with('sukses', 'Produk berhasil ditambahkan');
+    if ($request->hasFile('gambar')) {
+        $data['gambar'] = $this->uploadImage(
+            $request->file('gambar')
+        );
     }
 
+    Produk::create($data);
+
+    return back()->with(
+        'sukses',
+        'Produk berhasil ditambahkan'
+    );
+}
+    
+        private function uploadImage($image)
+    {
+        $imageName = time() . '.' . $image->getClientOriginalExtension();
+    
+        $image->move(public_path('assets/img'), $imageName);
+    
+        return 'assets/img/' . $imageName;
+    }
     public function update(Request $request, Produk $produk)
     {
         $data = $request->validate([
