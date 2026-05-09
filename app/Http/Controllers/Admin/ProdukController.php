@@ -95,7 +95,13 @@ class ProdukController extends Controller
 
     public function destroy(Produk $produk)
     {
-        $produk->delete();
+        $this->deleteProduk($produk);
+    
         return back()->with('sukses', 'Produk berhasil dihapus');
+    }
+    
+    private function deleteProduk(Produk $produk)
+    {
+        return $produk->delete();
     }
 }
