@@ -63,14 +63,15 @@ class ProdukController extends Controller
 {
     $data = $this->validateProdukUpdate($request);
 
-    if ($request->hasFile('gambar')) {
-        $image = $request->file('gambar');
-        $imageName = time() . '.' . $image->getClientOriginalExtension();
-        $image->move(public_path(self::IMAGE_PATH), $imageName);
+    $data['gambar'] = $this->resolveProdukImage($request, $produk);
 
-        $data['gambar'] = self::IMAGE_PATH . '/' . $imageName;
-    } else {
-        $data['gambar'] = $produk->gambar;
+    private function resolveProdukImage(Request $request, Produk $produk)
+    {
+        if ($request->hasFile('gambar')) {
+            return $this->uploadImage($request->file('gambar'));
+        }
+    
+        return $produk->gambar;
     }
 
     $produk->update($data);
