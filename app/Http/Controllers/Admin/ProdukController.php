@@ -40,9 +40,12 @@ class ProdukController extends Controller
     {
         $imageName = time() . '.' . $image->getClientOriginalExtension();
     
-        $image->move(public_path('assets/img'), $imageName);
+        private const IMAGE_PATH = 'assets/img';
     
-        return 'assets/img/' . $imageName;
+    $image->move(public_path(self::IMAGE_PATH), $imageName);
+    
+    return self::IMAGE_PATH . '/' . $imageName;
+        
     }
     public function update(Request $request, Produk $produk)
     {
