@@ -74,7 +74,12 @@ class ProdukController extends Controller
         return $produk->gambar;
     }
 
-    $produk->update($data);
+    $this->updateProduk($produk, $data);
+
+    private function updateProduk(Produk $produk, array $data)
+    {
+        return $produk->update($data);
+    }
 
         return back()->with('sukses', 'Produk berhasil diperbarui');
     }
