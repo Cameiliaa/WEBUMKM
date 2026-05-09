@@ -24,6 +24,15 @@ class AdminController extends Controller
         return User::where('role', self::ROLE_ADMIN)->get();
     }    
     
+    private function getPelanggan()
+    {
+        return User::where('role', self::ROLE_TAMU)->get();
+    }
+    
+    private function findPelanggan($id)
+    {
+        return User::where('role', self::ROLE_TAMU)->findOrFail($id);
+    }
     public function dashboard()
     {
         return view('admin.dashboard');
@@ -113,18 +122,22 @@ class AdminController extends Controller
         return redirect()->route('admin.kelola-admin.index')->with('sukses', 'Admin berhasil dihapus.');
     }
 
-        public function kelolaPelanggan()
+            public function kelolaPelanggan()
     {
-        $pelanggan = User::where('role', self::ROLE_TAMU)->get();
+        $pelanggan = $this->getPelanggan();
+    
         return view('admin.kelola-pelanggan.index', compact('pelanggan'));
     }
-
+    
     public function destroyPelanggan($id)
     {
-        $pelanggan = User::where('role', self::ROLE_TAMU)->findOrFail($id);
+        $pelanggan = $this->findPelanggan($id);
+    
         $pelanggan->delete();
-
-        return redirect()->route('admin.kelola-pelanggan.index')->with('sukses', 'Pelanggan berhasil dihapus.');
+    
+        return redirect()
+            ->route('admin.kelola-pelanggan.index')
+            ->with('sukses', 'Pelanggan berhasil dihapus.');
     }
 
 }
