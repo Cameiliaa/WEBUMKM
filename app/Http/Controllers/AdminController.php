@@ -34,24 +34,35 @@ class AdminController extends Controller
         return view('admin.kelola-admin.create');
     }
 
-    public function store(Request $request)
+        public function store(Request $request)
     {
-        $request->validate([
+        $validated = $this->validateAdminStore($request);
+    
+        $this->createAdmin($validated);
+    
+        return redirect()
+            ->route('admin.kelola-admin.index')
+            ->with('sukses', 'Admin berhasil ditambahkan.');
+    }
+    
+    private function validateAdminStore(Request $request)
+    {
+        return $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
-
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+    }
+    
+    private function createAdmin(array $data)
+    {
+        return User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
             'role' => self::ROLE_ADMIN,
         ]);
-
-        return redirect()->route('admin.kelola-admin.index')->with('sukses', 'Admin berhasil ditambahkan.');
     }
-
     public function edit($id)
     {
         $admin = User::findOrFail($id);
