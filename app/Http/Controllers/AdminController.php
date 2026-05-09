@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
+    private const ROLE_ADMIN = 'admin';
+    private const ROLE_TAMU = 'tamu';
+    
        public function index()
     {
         $admins = $this->getAdmins();
@@ -43,7 +46,7 @@ class AdminController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'admin',
+            'role' => self::ROLE_ADMIN,
         ]);
 
         return redirect()->route('admin.kelola-admin.index')->with('sukses', 'Admin berhasil ditambahkan.');
@@ -82,15 +85,15 @@ class AdminController extends Controller
         return redirect()->route('admin.kelola-admin.index')->with('sukses', 'Admin berhasil dihapus.');
     }
 
-    public function kelolaPelanggan()
+        public function kelolaPelanggan()
     {
-        $pelanggan = User::where('role', 'tamu')->get();
+        $pelanggan = User::where('role', self::ROLE_TAMU)->get();
         return view('admin.kelola-pelanggan.index', compact('pelanggan'));
     }
 
     public function destroyPelanggan($id)
     {
-        $pelanggan = User::where('role', 'tamu')->findOrFail($id);
+        $pelanggan = User::where('role', self::ROLE_TAMU)->findOrFail($id);
         $pelanggan->delete();
 
         return redirect()->route('admin.kelola-pelanggan.index')->with('sukses', 'Pelanggan berhasil dihapus.');
