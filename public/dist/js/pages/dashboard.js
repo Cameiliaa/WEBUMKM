@@ -1,8 +1,3 @@
-/**
- * Refactored Dashboard Module
- * Principles: SOLID (SRP, OCP)
- * Author: Gemini (Adaptive AI)
- */
 
 const DashboardData = {
   getVisitors: () => ({
@@ -97,21 +92,12 @@ const UIManager = {
   }
 };
 
-// 3. VISUALIZATION MANAGER (Bertanggung jawab atas Grafik & Map)
-class VisualizationManager {
-  constructor(dataService) {
-    this.dataService = dataService;
-  }
+// -------------------------------------------------------------------------
+// COMMIT 1: REFACTOR SRP - DECOMPOSING VISUALIZATION MANAGER
+// -------------------------------------------------------------------------
 
-  renderAll() {
-    this.renderWorldMap();
-    this.renderSalesChart();
-    this.renderPieChart();
-    this.renderSparklines();
-  }
-
-  renderWorldMap() {
-    const visitors = this.dataService.getVisitors();
+class WorldMapRenderer {
+  render(data) {
     $('#world-map').vectorMap({
       map: 'usa_en',
       backgroundColor: 'transparent',
@@ -120,46 +106,62 @@ class VisualizationManager {
       },
       series: {
         regions: [{
-          values: visitors,
+          values: data,
           scale: ['#ffffff', '#0154ad'],
           normalizeFunction: 'polynomial'
         }]
-      },
-      onRegionLabelShow: (e, el, code) => {
-        if (visitors[code]) el.html(`${el.html()}: ${visitors[code]} new visitors`);
       }
     });
   }
+}
 
-  renderSalesChart() {
+class SalesChartRenderer {
+  render(data) {
     const ctx = document.getElementById('revenue-chart-canvas').getContext('2d');
     new Chart(ctx, {
       type: 'line',
-      data: this.dataService.getSalesData(),
+      data: data,
       options: { maintainAspectRatio: false, responsive: true, legend: { display: false } }
     });
   }
+}
 
-  renderPieChart() {
+class PieChartRenderer {
+  render(data) {
     const ctx = $('#sales-chart-canvas').get(0).getContext('2d');
     new Chart(ctx, {
       type: 'doughnut',
-      data: this.dataService.getPieData(),
+      data: data,
       options: { maintainAspectRatio: false, responsive: true, legend: { display: false } }
     });
   }
+}
 
-  renderSparklines() {
+class SparklineRenderer {
+  render() {
     const config = { width: 80, height: 50, lineColor: '#92c1dc', endColor: '#ebf4f9' };
     
-    const s1 = new Sparkline($("#sparkline-1")[0], config);
-    s1.draw([1000, 1200, 920, 927, 931, 1027, 819, 930, 1021]);
+    new Sparkline($("#sparkline-1")[0], config).draw([1000, 1200, 920, 927, 931, 1027, 819, 930, 1021]);
+    new Sparkline($("#sparkline-2")[0], config).draw([515, 519, 520, 522, 652, 810, 370, 627, 319, 630, 921]);
+    new Sparkline($("#sparkline-3")[0], config).draw([15, 19, 20, 22, 33, 27, 31, 27, 19, 30, 21]);
+  }
+}
 
-    const s2 = new Sparkline($("#sparkline-2")[0], config);
-    s2.draw([515, 519, 520, 522, 652, 810, 370, 627, 319, 630, 921]);
+// VisualizationManager sekarang mengorkestrasikan renderer spesifik
+class VisualizationManager {
+  constructor(dataService) {
+    this.dataService = dataService;
+    this.mapRenderer = new WorldMapRenderer();
+    this.salesRenderer = new SalesChartRenderer();
+    this.pieRenderer = new PieChartRenderer();
+    this.sparklineRenderer = new SparklineRenderer();
+  }
 
-    const s3 = new Sparkline($("#sparkline-3")[0], config);
-    s3.draw([15, 19, 20, 22, 33, 27, 31, 27, 19, 30, 21]);
+  renderAll() {
+    this.mapRenderer.render(this.dataService.getVisitors());
+    this.salesRenderer.render(this.dataService.getSalesData());
+    this.pieRenderer.render(this.dataService.getPieData());
+    this.sparklineRenderer.render();
   }
 }
 
