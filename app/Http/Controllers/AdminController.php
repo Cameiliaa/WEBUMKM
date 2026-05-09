@@ -54,7 +54,7 @@ class AdminController extends Controller
         ]);
     }
     
-    private function createAdmin(array $data)
+        private function createAdmin(array $data)
     {
         return User::create([
             'name' => $data['name'],
