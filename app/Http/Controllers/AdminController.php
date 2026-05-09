@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+
+class AdminController extends Controller
+{
+    public function index()
+    {
+        $admins = User::where('role', 'admin')->get();
+        return view('admin.kelola-admin.index', compact('admins'));
+    }
+    public function dashboard()
+    {
+        return view('admin.dashboard');
+    }
+
+    public function create()
+    {
+        return view('admin.kelola-admin.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'admin',
+        ]);
+
+        return redirect()->route('admin.kelola-admin.index')->with('sukses', 'Admin berhasil ditambahkan.');
+    }
+
+    public function edit($id)
+    {
+        $admin = User::findOrFail($id);
+        return view('admin.kelola-admin.edit', compact('admin'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $admin = User::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $admin->id,
+            'password' => 'nullable|string|min:6|confirmed',
+        ]);
+
+        $admin->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password ? Hash::make($request->password) : $admin->password,
+        ]);
+
+        return redirect()->route('admin.kelola-admin.index')->with('sukses', 'Admin berhasil diperbarui.');
+    }
+
+    public function destroy($id)
+    {
+        $admin = User::findOrFail($id);
+        $admin->delete();
+
+        return redirect()->route('admin.kelola-admin.index')->with('sukses', 'Admin berhasil dihapus.');
+    }
+
+    public function kelolaPelanggan()
+    {
+        $pelanggan = User::where('role', 'tamu')->get();
+        return view('admin.kelola-pelanggan.index', compact('pelanggan'));
+    }
+
+    public function destroyPelanggan($id)
+    {
+        $pelanggan = User::where('role', 'tamu')->findOrFail($id);
+        $pelanggan->delete();
+
+        return redirect()->route('admin.kelola-pelanggan.index')->with('sukses', 'Pelanggan berhasil dihapus.');
+    }
+
+}
