@@ -63,9 +63,9 @@ class RegisterController extends Controller
 
     protected function registered(Request $request, $user)
     {
-    $this->logoutUser();
+        $this->logoutUser();
 
-    return $this->redirectToLogin();
+        return $this->redirectToLogin();
     }
 
     /**
@@ -73,7 +73,7 @@ class RegisterController extends Controller
     */
     private function logoutUser()
     {
-    Auth::logout();
+        Auth::logout();
     }
 
     /**
@@ -82,6 +82,6 @@ class RegisterController extends Controller
     private function redirectToLogin()
     {
         return redirect('/login')
-           ->with('success', 'Registrasi berhasil! Silakan login.');
+            ->with('success', 'Registrasi berhasil! Silakan login.');
     }
 }
