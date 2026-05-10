@@ -61,16 +61,27 @@ class RegisterController extends Controller
         ]);
     }
 
-    /**
-     * Override method registered() untuk logout otomatis setelah registrasi.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\RedirectResponse
-     */
     protected function registered(Request $request, $user)
     {
-        Auth::logout(); // Logout otomatis setelah registrasi
-        return redirect('/login')->with('success', 'Registrasi berhasil! Silakan login.');
+    $this->logoutUser();
+
+    return $this->redirectToLogin();
+    }
+
+    /**
+    * Logout user setelah registrasi
+    */
+    private function logoutUser()
+    {
+    Auth::logout();
+    }
+
+    /**
+    * Redirect ke halaman login
+    */
+    private function redirectToLogin()
+    {
+        return redirect('/login')
+           ->with('success', 'Registrasi berhasil! Silakan login.');
     }
 }
