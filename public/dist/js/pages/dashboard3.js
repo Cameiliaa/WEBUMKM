@@ -3,11 +3,8 @@ $(function () {
   'use strict'
 
 
-  var chartStyles = {
-    ticks: {
-      fontColor: '#495057',
-      fontStyle: 'bold'
-    },
+  const chartStyles = {
+    ticks: { fontColor: '#495057', fontStyle: 'bold' },
     gridLines: {
       display: true,
       lineWidth: '4px',
@@ -16,26 +13,35 @@ $(function () {
     }
   };
 
-  var interactionMode = {
-    mode: 'index',
-    intersect: true
+  const interactionMode = { mode: 'index', intersect: true };
+
+  const chartUtils = {
+    formatToK: (value) => (value >= 1000 ? (value / 1000) + 'k' : value)
   };
 
-  var chartUtils = {
-    formatToK: function (value) {
-      if (value >= 1000) {
-        value /= 1000
-        value += 'k'
-      }
-      return '$' + value
+
+  const DataGenerator = {
+    createDataset: function(config) {
+     
+      return {
+        label: config.label || '',
+        data: config.data || [],
+        backgroundColor: config.backgroundColor || 'transparent',
+        borderColor: config.borderColor || '#000',
+        pointBorderColor: config.borderColor || '#000',
+        pointBackgroundColor: config.borderColor || '#000',
+        fill: config.fill || false,
+        type: config.type || undefined // Bisa Bar atau Line
+      };
     }
   };
 
+  const createChart = function ($element, type, chartData, extraYAxisOptions = {}) {
+    if (!$element.length) return; 
 
-  var createChart = function ($element, type, data, extraYAxisOptions = {}) {
     return new Chart($element, {
       type: type,
-      data: data,
+      data: chartData,
       options: {
         maintainAspectRatio: false,
         tooltips: interactionMode,
@@ -44,7 +50,6 @@ $(function () {
         scales: {
           yAxes: [{
             gridLines: chartStyles.gridLines,
-          
             ticks: $.extend({ beginAtZero: true }, chartStyles.ticks, extraYAxisOptions)
           }],
           xAxes: [{
@@ -57,55 +62,45 @@ $(function () {
     });
   };
 
- 
-  var salesData = {
+
+  const salesData = {
     labels: ['JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
     datasets: [
-      {
+      DataGenerator.createDataset({
+        data: [1000, 2000, 3000, 2500, 2700, 2500, 3000],
         backgroundColor: '#007bff',
-        borderColor: '#007bff',
-        data: [1000, 2000, 3000, 2500, 2700, 2500, 3000]
-      },
-      {
+        borderColor: '#007bff'
+      }),
+      DataGenerator.createDataset({
+        data: [700, 1700, 2700, 2000, 1800, 1500, 2000],
         backgroundColor: '#ced4da',
-        borderColor: '#ced4da',
-        data: [700, 1700, 2700, 2000, 1800, 1500, 2000]
-      }
+        borderColor: '#ced4da'
+      })
     ]
   };
 
-
-  var salesChart = createChart($('#sales-chart'), 'bar', salesData, {
-    callback: chartUtils.formatToK
+  createChart($('#sales-chart'), 'bar', salesData, {
+    callback: (val) => '$' + chartUtils.formatToK(val)
   });
 
 
-
-  var visitorsData = {
+  const visitorsData = {
     labels: ['18th', '20th', '22nd', '24th', '26th', '28th', '30th'],
     datasets: [
-      {
-        type: 'line', // Mixed chart tetap bisa karena didefinisikan di dataset
+      DataGenerator.createDataset({
+        type: 'line',
         data: [100, 120, 170, 167, 180, 177, 160],
-        backgroundColor: 'transparent',
-        borderColor: '#007bff',
-        pointBorderColor: '#007bff',
-        pointBackgroundColor: '#007bff',
-        fill: false
-      },
-      {
+        borderColor: '#007bff'
+      }),
+      DataGenerator.createDataset({
         type: 'line',
         data: [60, 80, 70, 67, 80, 77, 100],
-        backgroundColor: 'transparent',
-        borderColor: '#ced4da',
-        pointBorderColor: '#ced4da',
-        pointBackgroundColor: '#ced4da',
-        fill: false
-      }
+        borderColor: '#ced4da'
+      })
     ]
   };
 
-  var visitorsChart = createChart($('#visitors-chart'), null, visitorsData, {
+  createChart($('#visitors-chart'), null, visitorsData, {
     suggestedMax: 200
   });
-})
+});
