@@ -27,22 +27,32 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    /**
-     * Redirect users after login based on role.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  mixed  $user
-     * @return \Illuminate\Http\RedirectResponse
-     */
     protected function authenticated(Request $request, $user)
+    {
+        return $this->redirectBasedOnRole($user);
+    }
+
+    /**
+    * Redirect user berdasarkan role
+    */
+    private function redirectBasedOnRole($user)
     {
         if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
-        } elseif ($user->role === 'tamu') {
-            return redirect()->route('tamu.dashboard');
         }
 
-        // Default redirect (jika role tidak cocok)
+        if ($user->role === 'tamu') {
+            return redirect()->route('tamu.dashboard');
+      }
+
+        return $this->defaultRedirect();
+   }
+
+    /**
+    * Redirect default jika role tidak ditemukan
+    */
+    private function defaultRedirect()
+    {
         return redirect('/home');
     }
 }
