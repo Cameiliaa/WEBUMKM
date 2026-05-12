@@ -1,95 +1,97 @@
-/
 
 $(function () {
   'use strict'
 
-  // --- 1. THEME & DEFAULT OPTIONS (Tetap dari Part 1) ---
   const THEME = {
     blue: { primary: 'rgba(60,141,188,0.9)', secondary: 'rgba(60,141,188,0.8)', point: '#3b8bba' },
     gray: { primary: 'rgba(210, 214, 222, 1)', secondary: '#c1c7d1' },
     pieColors: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de']
   };
 
-  const DEFAULT_OPTIONS = {
-    responsive: true,
-    maintainAspectRatio: false,
-    legend: { display: false }
+  // --- 1. DATASET FACTORY (Tanggung Jawab: Validasi Kontrak/LSP) ---
+  const DatasetFactory = {
+    // Membuat template dasar yang aman untuk semua jenis chart
+    create: function (type, config) {
+      const base = {
+        label: config.label || '',
+        data: config.data || [],
+        backgroundColor: config.backgroundColor || 'transparent',
+        borderColor: config.borderColor || 'rgba(0,0,0,0.1)'
+      };
+
+      // Spesifik untuk tipe Line (Sub-tipe behavior)
+      if (type === 'line') {
+        return $.extend(base, {
+          pointRadius: config.pointRadius || false,
+          pointColor: config.pointColor || '#fff',
+          pointStrokeColor: config.borderColor,
+          pointHighlightFill: '#fff',
+          pointHighlightStroke: config.borderColor,
+          fill: config.fill || true
+        });
+      }
+
+      // Spesifik untuk tipe Pie/Doughnut
+      if (type === 'doughnut' || type === 'pie') {
+        return $.extend(base, {
+          backgroundColor: config.colors || THEME.pieColors,
+          borderColor: '#fff'
+        });
+      }
+
+      return base;
+    }
   };
 
-  // --- 2. CHART ENGINE (Tanggung Jawab: Abstraksi Rendering) ---
-  // Fungsi ini "Closed": Tidak perlu diubah-ubah lagi meski chart bertambah.
+  // --- 2. CHART ENGINE (Tetap Konsisten) ---
   const ChartEngine = {
     render: function (config) {
       const $el = $(config.selector);
       if (!$el.length) return;
 
-      const context = $el.get(0).getContext('2d');
-      return new Chart(context, {
+      // Transformasi data mentah menggunakan Factory sebelum di-render
+      const processedDatasets = config.datasets.map(d => 
+        DatasetFactory.create(config.type, d)
+      );
+
+      return new Chart($el.get(0).getContext('2d'), {
         type: config.type,
-        data: config.data,
-        options: $.extend(true, {}, DEFAULT_OPTIONS, config.options || {})
+        data: { labels: config.labels, datasets: processedDatasets },
+        options: $.extend(true, {
+          responsive: true,
+          maintainAspectRatio: false,
+          legend: { display: false }
+        }, config.options || {})
       });
     }
   };
 
-  // --- 3. CHART REGISTRY (Tanggung Jawab: Ekstensi Data) ---
-  // Bagian ini "Open": Anda bisa menambah 100 chart di sini tanpa menyentuh ChartEngine.
+  // --- 3. DEFINISI DATA (Lebih bersih tanpa boilerplate) ---
   const chartsToLoad = [
     {
-      id: 'Sales Chart',
       selector: '#salesChart',
       type: 'line',
-      data: {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-        datasets: [
-          {
-            label: 'Digital Goods',
-            backgroundColor: THEME.blue.primary,
-            borderColor: THEME.blue.secondary,
-            data: [28, 48, 40, 19, 86, 27, 90],
-            pointRadius: false
-          },
-          {
-            label: 'Electronics',
-            backgroundColor: THEME.gray.primary,
-            borderColor: THEME.gray.primary,
-            data: [65, 59, 80, 81, 56, 55, 40],
-            pointRadius: false
-          }
-        ]
-      },
-      options: {
-        scales: {
-          xAxes: [{ gridLines: { display: false } }],
-          yAxes: [{ gridLines: { display: false } }]
-        }
-      }
+      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+      datasets: [
+        { label: 'Digital Goods', data: [28, 48, 40, 19, 86, 27, 90], backgroundColor: THEME.blue.primary, borderColor: THEME.blue.secondary },
+        { label: 'Electronics', data: [65, 59, 80, 81, 56, 55, 40], backgroundColor: THEME.gray.primary, borderColor: THEME.gray.primary }
+      ],
+      options: { scales: { xAxes: [{ gridLines: { display: false } }], yAxes: [{ gridLines: { display: false } }] } }
     },
     {
-      id: 'Browser Share',
       selector: '#pieChart',
       type: 'doughnut',
-      data: {
-        labels: ['Chrome', 'IE', 'FireFox', 'Safari', 'Opera', 'Navigator'],
-        datasets: [{
-          data: [700, 500, 400, 600, 300, 100],
-          backgroundColor: THEME.pieColors
-        }]
-      }
+      labels: ['Chrome', 'IE', 'FireFox', 'Safari', 'Opera', 'Navigator'],
+      datasets: [
+        { data: [700, 500, 400, 600, 300, 100] }
+      ]
     }
   ];
 
   // --- 4. EXECUTION ---
-  // Inisialisasi otomatis semua chart yang terdaftar
-  chartsToLoad.forEach(chartConfig => {
-    ChartEngine.render(chartConfig);
-  });
+  chartsToLoad.forEach(config => ChartEngine.render(config));
 
-  // Inisialisasi Map (Karena Mapael bukan ChartJS, kita biarkan terpisah sementara)
   $('#world-map-markers').mapael({
-    map: {
-      name: "usa_states",
-      zoom: { enabled: true, maxLevel: 10 }
-    }
+    map: { name: "usa_states", zoom: { enabled: true, maxLevel: 10 } }
   });
 });
