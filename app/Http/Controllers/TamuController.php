@@ -9,7 +9,13 @@ class TamuController extends Controller
 {
     public function index()
     {
-        $produks = Produk::all(); 
-        return view('tamu.dashboard', compact('produks')); 
+        $produks = $this->getAllProduk();
+    
+        return view('tamu.dashboard', compact('produks'));
+    }
+    
+    private function getAllProduk()
+    {
+        return Produk::all();
     }
 }
