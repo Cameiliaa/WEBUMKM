@@ -1,8 +1,7 @@
 
-
-
 $(function () {
   'use strict'
+
 
   var chartStyles = {
     ticks: {
@@ -22,7 +21,6 @@ $(function () {
     intersect: true
   };
 
-
   var chartUtils = {
     formatToK: function (value) {
       if (value >= 1000) {
@@ -33,55 +31,61 @@ $(function () {
     }
   };
 
-  // --- 3. INISIALISASI SALES CHART ---
-  var $salesChart = $('#sales-chart')
-  var salesChart = new Chart($salesChart, {
-    type: 'bar',
-    data: {
-      labels: ['JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
-      datasets: [
-        {
-          backgroundColor: '#007bff',
-          borderColor: '#007bff',
-          data: [1000, 2000, 3000, 2500, 2700, 2500, 3000]
-        },
-        {
-          backgroundColor: '#ced4da',
-          borderColor: '#ced4da',
-          data: [700, 1700, 2700, 2000, 1800, 1500, 2000]
+
+  var createChart = function ($element, type, data, extraYAxisOptions = {}) {
+    return new Chart($element, {
+      type: type,
+      data: data,
+      options: {
+        maintainAspectRatio: false,
+        tooltips: interactionMode,
+        hover: interactionMode,
+        legend: { display: false },
+        scales: {
+          yAxes: [{
+            gridLines: chartStyles.gridLines,
+          
+            ticks: $.extend({ beginAtZero: true }, chartStyles.ticks, extraYAxisOptions)
+          }],
+          xAxes: [{
+            display: true,
+            gridLines: { display: false },
+            ticks: chartStyles.ticks
+          }]
         }
-      ]
-    },
-    options: {
-      maintainAspectRatio: false,
-      tooltips: interactionMode,
-      hover: interactionMode,
-      legend: { display: false },
-      scales: {
-        yAxes: [{
-          gridLines: chartStyles.gridLines,
-          ticks: $.extend({
-            beginAtZero: true,
-            callback: chartUtils.formatToK // Menggunakan utility formatter
-          }, chartStyles.ticks)
-        }],
-        xAxes: [{
-          display: true,
-          gridLines: { display: false },
-          ticks: chartStyles.ticks
-        }]
       }
-    }
-  })
+    });
+  };
+
+ 
+  var salesData = {
+    labels: ['JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+    datasets: [
+      {
+        backgroundColor: '#007bff',
+        borderColor: '#007bff',
+        data: [1000, 2000, 3000, 2500, 2700, 2500, 3000]
+      },
+      {
+        backgroundColor: '#ced4da',
+        borderColor: '#ced4da',
+        data: [700, 1700, 2700, 2000, 1800, 1500, 2000]
+      }
+    ]
+  };
 
 
-  var $visitorsChart = $('#visitors-chart')
-  var visitorsChart = new Chart($visitorsChart, {
-    // Note: Type didefinisikan di dalam dataset (Mixed Chart)
-    data: {
-      labels: ['18th', '20th', '22nd', '24th', '26th', '28th', '30th'],
-      datasets: [{
-        type: 'line',
+  var salesChart = createChart($('#sales-chart'), 'bar', salesData, {
+    callback: chartUtils.formatToK
+  });
+
+
+
+  var visitorsData = {
+    labels: ['18th', '20th', '22nd', '24th', '26th', '28th', '30th'],
+    datasets: [
+      {
+        type: 'line', // Mixed chart tetap bisa karena didefinisikan di dataset
         data: [100, 120, 170, 167, 180, 177, 160],
         backgroundColor: 'transparent',
         borderColor: '#007bff',
@@ -97,27 +101,11 @@ $(function () {
         pointBorderColor: '#ced4da',
         pointBackgroundColor: '#ced4da',
         fill: false
-      }]
-    },
-    options: {
-      maintainAspectRatio: false,
-      tooltips: interactionMode,
-      hover: interactionMode,
-      legend: { display: false },
-      scales: {
-        yAxes: [{
-          gridLines: chartStyles.gridLines,
-          ticks: $.extend({
-            beginAtZero: true,
-            suggestedMax: 200
-          }, chartStyles.ticks)
-        }],
-        xAxes: [{
-          display: true,
-          gridLines: { display: false },
-          ticks: chartStyles.ticks
-        }]
       }
-    }
-  })
+    ]
+  };
+
+  var visitorsChart = createChart($('#visitors-chart'), null, visitorsData, {
+    suggestedMax: 200
+  });
 })
