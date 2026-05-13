@@ -1,107 +1,137 @@
-
-
 $(function () {
-  'use strict';
+  'use strict'
 
+  var ticksStyle = {
+    fontColor: '#495057',
+    fontStyle: 'bold'
+  }
 
-  const THEME = {
-    colors: {
-      blue: { primary: 'rgba(60,141,188,0.9)', secondary: 'rgba(60,141,188,0.8)', point: '#3b8bba' },
-      gray: { primary: 'rgba(210, 214, 222, 1)', secondary: '#c1c7d1' },
-      palette: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de']
-    }
-  };
+  var mode = 'index'
+  var intersect = true
 
-
-  const DashboardData = {
-    getSalesData: () => ({
-      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+  // --- SALES CHART ---
+  var $salesChart = $('#sales-chart')
+  var salesChart = new Chart($salesChart, {
+    type: 'bar',
+    data: {
+      labels: ['JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
       datasets: [
-        { label: 'Digital Goods', data: [28, 48, 40, 19, 86, 27, 90], theme: 'blue' },
-        { label: 'Electronics', data: [65, 59, 80, 81, 56, 55, 40], theme: 'gray' }
-      ]
-    }),
-    getBrowserData: () => ({
-      labels: ['Chrome', 'IE', 'FireFox', 'Safari', 'Opera', 'Navigator'],
-      datasets: [{ data: [700, 500, 400, 600, 300, 100], theme: 'palette' }]
-    }),
-    getMapConfig: () => ({ selector: '#world-map-markers', mapName: 'usa_states' })
-  };
-
-  -
-  const DatasetBuilder = {
-    build: function(type, item) {
-      const isLine = type === 'line';
-      const colorSet = THEME.colors[item.theme] || { primary: '#d2d6de' };
-
-      return {
-        label: item.label || '',
-        data: item.data,
-        backgroundColor: isLine ? colorSet.primary : (item.theme === 'palette' ? THEME.colors.palette : colorSet.primary),
-        borderColor: isLine ? colorSet.secondary : '#fff',
-        pointRadius: false,
-        pointColor: colorSet.point || colorSet.primary,
-        fill: isLine,
-      
-        pointStrokeColor: colorSet.secondary,
-        pointHighlightFill: '#fff',
-        pointHighlightStroke: colorSet.secondary
-      };
-    }
-  };
-
-
-  const ChartRenderer = {
-    render: function(selector, type, data) {
-      const $el = $(selector);
-      if (!$el.length) return;
-
-      const context = $el.get(0).getContext('2d');
-      const processedDatasets = data.datasets.map(d => DatasetBuilder.build(type, d));
-
-      return new Chart(context, {
-        type: type,
-        data: { labels: data.labels, datasets: processedDatasets },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          legend: { display: false },
-          scales: type === 'line' ? {
-            xAxes: [{ gridLines: { display: false } }],
-            yAxes: [{ gridLines: { display: false } }]
-          } : {}
+        {
+          backgroundColor: '#007bff',
+          borderColor: '#007bff',
+          data: [1000, 2000, 3000, 2500, 2700, 2500, 3000]
+        },
+        {
+          backgroundColor: '#ced4da',
+          borderColor: '#ced4da',
+          data: [700, 1700, 2700, 2000, 1800, 1500, 2000]
         }
-      });
-    }
-  };
-
-  const MapRenderer = {
-    render: function(selector, name) {
-      const $el = $(selector);
-      if ($el.length) {
-        $el.mapael({
-          map: { name: name, zoom: { enabled: true, maxLevel: 10 } }
-        });
+      ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      tooltips: {
+        mode: mode,
+        intersect: intersect
+      },
+      hover: {
+        mode: mode,
+        intersect: intersect
+      },
+      legend: {
+        display: false
+      },
+      scales: {
+        yAxes: [{
+          gridLines: {
+            display: true,
+            lineWidth: '4px',
+            color: 'rgba(0, 0, 0, .2)',
+            zeroLineColor: 'transparent'
+          },
+          ticks: $.extend({
+            beginAtZero: true,
+            // Format angka menjadi ribuan (k) dan tambahkan simbol $
+            callback: function (value) {
+              if (value >= 1000) {
+                value /= 1000
+                value += 'k'
+              }
+              return '$' + value
+            }
+          }, ticksStyle)
+        }],
+        xAxes: [{
+          display: true,
+          gridLines: {
+            display: false
+          },
+          ticks: ticksStyle
+        }]
       }
     }
-  };
+  })
 
-
-  const DashboardApp = {
-    init: function(dataService, chartEngine, mapEngine) {
-      // Inisialisasi Sales Chart
-      chartEngine.render('#salesChart', 'line', dataService.getSalesData());
-
-      // Inisialisasi Pie Chart
-      chartEngine.render('#pieChart', 'doughnut', dataService.getBrowserData());
-
-      // Inisialisasi Map
-      const mapConf = dataService.getMapConfig();
-      mapEngine.render(mapConf.selector, mapConf.mapName);
+  // --- VISITORS CHART ---
+  var $visitorsChart = $('#visitors-chart')
+  var visitorsChart = new Chart($visitorsChart, {
+    data: {
+      labels: ['18th', '20th', '22nd', '24th', '26th', '28th', '30th'],
+      datasets: [
+        {
+          type: 'line',
+          data: [100, 120, 170, 167, 180, 177, 160],
+          backgroundColor: 'transparent',
+          borderColor: '#007bff',
+          pointBorderColor: '#007bff',
+          pointBackgroundColor: '#007bff',
+          fill: false
+        },
+        {
+          type: 'line',
+          data: [60, 80, 70, 67, 80, 77, 100],
+          backgroundColor: 'transparent', // Perbaikan saltik dari 'tansparent'
+          borderColor: '#ced4da',
+          pointBorderColor: '#ced4da',
+          pointBackgroundColor: '#ced4da',
+          fill: false
+        }
+      ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      tooltips: {
+        mode: mode,
+        intersect: intersect
+      },
+      hover: {
+        mode: mode,
+        intersect: intersect
+      },
+      legend: {
+        display: false
+      },
+      scales: {
+        yAxes: [{
+          gridLines: {
+            display: true,
+            lineWidth: '4px',
+            color: 'rgba(0, 0, 0, .2)',
+            zeroLineColor: 'transparent'
+          },
+          ticks: $.extend({
+            beginAtZero: true,
+            suggestedMax: 200
+          }, ticksStyle)
+        }],
+        xAxes: [{
+          display: true,
+          gridLines: {
+            display: false
+          },
+          ticks: ticksStyle
+        }]
+      }
     }
-  };
-
-  
-  DashboardApp.init(DashboardData, ChartRenderer, MapRenderer);
-
-});
+  })
+})
