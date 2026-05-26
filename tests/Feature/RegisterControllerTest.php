@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
 use Tests\TestCase;
 
 class RegisterControllerTest extends TestCase
@@ -38,5 +37,18 @@ class RegisterControllerTest extends TestCase
         ]);
 
         $this->assertGuest();
+    }
+
+    /** @test */
+    public function registration_redirects_to_login_page()
+    {
+        $response = $this->post('/register', [
+            'name' => 'Mock User',
+            'email' => 'mock@test.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $response->assertRedirect('/login');
     }
 }
