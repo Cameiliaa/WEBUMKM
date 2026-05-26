@@ -9,8 +9,13 @@ class LandingPageController extends Controller
 {
     public function index()
     {
-        $produks = Produk::all(); 
-
+        $produks = $this->getAllProduk();
+    
         return view('welcome', compact('produks'));
+    }
+    
+    private function getAllProduk()
+    {
+        return Produk::all();
     }
 }
