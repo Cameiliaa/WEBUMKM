@@ -8,24 +8,26 @@ use App\Models\User;
 class UserTest extends TestCase
 {
     /**
-     * Menguji apakah fungsi isAdmin() mengembalikan true jika role-nya 'admin'.
+     * Memastikan fungsi isAdmin() mengembalikan true jika role-nya 'admin'
      */
     public function test_is_admin_returns_true_when_role_is_admin()
     {
-        // Menyuntikkan data palsu ke objek (Stubbing State)
+        // Membuat User Palsu di RAM dengan status/state role = admin (Stub)
         $userAdmin = new User(['role' => 'admin']);
 
-        // Penegasan (Assertion)
+        // Penegasan hasil harus TRUE
         $this->assertTrue($userAdmin->isAdmin());
     }
 
     /**
-     * Menguji apakah fungsi isAdmin() mengembalikan false jika role-nya bukan 'admin'.
+     * Memastikan fungsi isAdmin() mengembalikan false jika role-nya bukan 'admin'
      */
-    public function test_is_admin_returns_false_when_role_is_customer()
+    public function test_is_admin_returns_false_when_role_is_not_admin()
     {
+        // Membuat User Palsu di RAM dengan status/state role = customer (Stub)
         $userCustomer = new User(['role' => 'customer']);
 
+        // Penegasan hasil harus FALSE
         $this->assertFalse($userCustomer->isAdmin());
     }
 }
